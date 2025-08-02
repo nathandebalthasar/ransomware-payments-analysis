@@ -5,7 +5,7 @@ Generate a pie chart to show the distribution of ransomware families.
 import matplotlib.pyplot as plt
 import json
 
-def generate_pie_chart(attributes, values, title="Pie Chart", threshold=5):
+def generate_pie_chart(attributes, values, threshold=5):
     total = sum(values)
     filtered_attributes = []
     filtered_values = []
@@ -24,7 +24,7 @@ def generate_pie_chart(attributes, values, title="Pie Chart", threshold=5):
         filtered_values.append(others_value)
 
     plt.figure(figsize=(8, 8))
-    wedges, texts, autotexts = plt.pie(
+    _, texts, autotexts = plt.pie(
         filtered_values,
         labels=filtered_attributes,
         autopct='%1.1f%%',
@@ -38,10 +38,7 @@ def generate_pie_chart(attributes, values, title="Pie Chart", threshold=5):
     for autotext in autotexts:
         autotext.set_fontsize(9)
 
-    plt.title(title)
     plt.axis('equal')
-
-    plt.legend(wedges, filtered_attributes, title="Families", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
 
     plt.tight_layout()
     plt.show()
@@ -53,4 +50,4 @@ all_families = [item['family'] for item in data]
 unique_families = list(set(all_families))
 values = [all_families.count(family) for family in unique_families]
 
-generate_pie_chart(unique_families, values, title="Ransomware Family Distribution", threshold=5)
+generate_pie_chart(unique_families, values, threshold=5)

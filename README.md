@@ -5,3 +5,4 @@ This repository contains several scripts and resources used to write my MSc thes
 ## Structure
 
 - `addresses-collection/`: Contains a list of scripts that were used to collect Bitcoin addresses suspected from belonging to ransomware operations (victims, affiliates, operators or other actors).
+- `graph-db/`: Contains scripts to initialize a Neo4j graph database with the collected addresses and add entity information to it.
