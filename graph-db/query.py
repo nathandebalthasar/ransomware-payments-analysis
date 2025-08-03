@@ -28,7 +28,12 @@ SET a:Seed
 
 TAG_UNKNOWN_ADDRESS_QUERY = """
 MATCH (a:Address {address: $address})
-SET a:Unknown, a.unknown = true
+SET a:Unknown
+"""
+
+LABEL_SERVICE_ADDRESS_QUERY = """
+MATCH (a:Address {address: $address})
+SET a:Service
 """
 
 CREATE_UNKNOWN_TX_QUERY = """
@@ -60,3 +65,6 @@ def create_transaction_node(tx, txid, timestamp, block_height, fee):
         "block_height": block_height,
         "fee": (fee or 0) / 100_000_000
     })
+
+def label_service_address(tx, address):
+    tx.run(LABEL_SERVICE_ADDRESS_QUERY, {"address": address})

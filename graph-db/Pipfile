@@ -7,8 +7,8 @@ name = "pypi"
 neo4j = "*"
 dotenv = "*"
 requests = "*"
-base58 = "*"
 bech32 = "*"
+base58 = "*"
 
 [dev-packages]
 

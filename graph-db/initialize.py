@@ -81,6 +81,10 @@ def electrum_request(method, params, max_retries=3):
     print(f"Failed to fetch {method} {params} after {max_retries} retries.")
     return None
 
+def sum_of_outputs(vout):
+    """Calculate the sum of output values in a transaction."""
+    return sum(o.get("value", 0) / 100_000_000 for o in vout)
+
 #  Fetch all transactions (inputs/outputs) for an address using ElectrumX
 def fetch_address_data(address):
     scripthash = address_to_scripthash(address)
@@ -109,8 +113,8 @@ def crawl_address(session, address, depth, visited, isSeed=False):
         print(f"\tCould not fetch {address}: {e}")
 
         # If the address could not be fetched, create an Unknown Address node
-        session.execute_write(query.create_address_node, address)
-        session.execute_write(query.tag_unknown_address, address)
+        # session.execute_write(query.create_address_node, address)
+        # session.execute_write(query.tag_unknown_address, address)
 
         return
 
@@ -122,6 +126,7 @@ def crawl_address(session, address, depth, visited, isSeed=False):
 
     if (len(data["txs"]) > 100):
         print(f"\tToo many txs for {address}, skipping further crawling.")
+        session.execute_write(query.label_service_address, address)
         return
 
     for tx in data["txs"]:
@@ -136,11 +141,17 @@ def crawl_address(session, address, depth, visited, isSeed=False):
         vin = tx.get("vin", [])
         vout = tx.get("vout", [])
 
+        if (sum_of_outputs(vout) > 5):
+            print(f"\tSkipping {txid} (output sum > 5 BTC)")
+            session.execute_write(query.label_service_address, address)
+            continue
+
         print(f"\t{address} TX {txid}: {len(vin)} inputs, {len(vout)} outputs")
 
-        # Skip huge transactions (mixers, etc.)
-        if len(vin) > 50 or len(vout) > 50:
+        # Skip if more than 20 inputs or outputs
+        if len(vin) > 20 or len(vout) > 20:
             print(f"\tSkipping {txid} (too many inputs/outputs)")
+            session.execute_write(query.label_service_address, address)
             continue
 
         for i in vin:
@@ -163,8 +174,10 @@ def crawl_address(session, address, depth, visited, isSeed=False):
             except Exception as e:
                 print(f"\tCould not fetch prev tx {prev_txid}: {e}")
 
-                # Create a placeholder Unknown Transaction node
-                session.execute_write(query.create_unknown_tx, prev_txid)
+                if "history too large" in str(e):
+                    print(f"\tSkipping {prev_txid} due to history size limit.")
+                    session.execute_write(query.label_service_address, address)
+                    continue
 
                 input_addr = None
 
