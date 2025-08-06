@@ -1,3 +1,9 @@
+"""
+Contains all neo4j queries to initialize the database as well as
+their wrapper function.
+"""
+
+
 CREATE_ADDRESS_QUERY = """
 MERGE (a:Address {address: $address})
 """

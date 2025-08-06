@@ -2,6 +2,12 @@
 
 This directory contains scripts to initialize the neo4j database with addresses starting from seed addresses, and add identified entities to it.
 
+## Pre-requisites
+
+- [ElectrumX server](link)
+- [GraphSense API key](link)
+- [Neo4j](link)
+
 ## Usage
 
 1. Fill in the `.env` file based on the `.env.template` one. Run the initialization script with an initial seed addresses file and given depth.
